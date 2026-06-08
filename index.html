@@ -7,6 +7,7 @@
     <style>
         :root {
             --primary-color: #4f46e5;
+            --success-color: #10b981;
             --background-color: #f3f4f6;
             --card-color: #ffffff;
         }
@@ -30,6 +31,8 @@
         }
         h1 { text-align: center; color: var(--primary-color); margin-bottom: 25px; }
         .hidden { display: none !important; }
+        
+        /* 버튼 스타일 */
         button {
             width: 100%;
             padding: 12px;
@@ -42,6 +45,10 @@
             transition: background 0.2s;
         }
         button:hover { background-color: #4338ca; }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-signup { background-color: var(--success-color); }
+        .btn-signup:hover { background-color: #059669; }
+
         .user-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #e5e7eb; }
         .interview-box { margin-top: 20px; }
         .chat-window {
@@ -56,12 +63,15 @@
         .msg { margin-bottom: 10px; padding: 10px; border-radius: 8px; max-width: 80%; }
         .ai-msg { background: #e0e7ff; color: #1e1b4b; align-self: flex-start; }
         .user-msg { background: #f3f4f6; color: #1f2937; margin-left: auto; text-align: right; }
-        input[type="text"] {
+        
+        /* 입력창 스타일 */
+        input[type="text"], input[type="password"] {
             width: calc(100% - 24px);
             padding: 12px;
             border: 1px solid #d1d5db;
             border-radius: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -71,8 +81,14 @@
     <h1>🎙️ AI 모의 면접 스튜디오</h1>
 
     <div id="login-section">
-        <p style="text-align: center; color: #6b7280;">면접 연습을 시작하려면 구글 로그인을 해주세요.</p>
-        <button id="btn-login">Google 계정으로 로그인</button>
+        <p style="text-align: center; color: #6b7280; margin-bottom: 20px;">서비스 이용을 위해 로그인하거나 회원가입 해주세요.</p>
+        <input type="text" id="auth-email" placeholder="이메일 주소 (ex: test@test.com)">
+        <input type="password" id="auth-password" placeholder="비밀번호 (6자리 이상)">
+        
+        <div class="btn-group">
+            <button id="btn-login">로그인</button>
+            <button id="btn-signup" class="btn-signup">회원가입</button>
+        </div>
     </div>
 
     <div id="interview-section" class="hidden">
@@ -82,6 +98,7 @@
         </div>
 
         <div id="setup-box">
+            <p style="color: #4b5563; font-weight: bold;">준비하시는 직무나 학과를 적어주세요:</p>
             <input type="text" id="job-input" placeholder="ex) 프론트엔드 개발자, 경영학과 학종 면접">
             <button id="btn-start">면접 시작하기</button>
         </div>
@@ -97,27 +114,30 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    // 💡 구글 팝업 대신 이메일 가입/로그인 메소드를 임포트합니다.
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     // 🔴 [필수] 본인의 Firebase 프로젝트 설정 값으로 변경하세요!
     const firebaseConfig = {
-        apiKey: "YOUR_FIREBASE_API_KEY",
-        authDomain: "YOUR_PROJECT.firebaseapp.com",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_PROJECT.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
-    };
+          apiKey: "AIzaSyCijfeiY87b_xMZjWrLkeQM2-Pb7DoTAdI",
+          authDomain: "hisangegaepaegi.firebaseapp.com",
+          databaseURL: "https://hisangegaepaegi-default-rtdb.firebaseio.com",
+          projectId: "hisangegaepaegi",
+          storageBucket: "hisangegaepaegi.firebasestorage.app",
+          messagingSenderId: "722816404715",
+          appId: "1:722816404715:web:7cc165f19ff4ed2b5302ae",
+          measurementId: "G-6ZMJKKP9T1"
+        };
 
-    // 🔴 [필수] 구글 Gemini API 키를 입력하세요 (혹은 발표때 인풋으로 받기)
+
+    // 🔴 [필수] 구글 Gemini API 키를 입력하세요
     const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"; 
 
     // 인프라 초기화
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const provider = new GoogleAuthProvider();
 
     // DOM 요소 관리
     const loginSection = document.getElementById('login-section');
@@ -128,15 +148,17 @@
     const answerInput = document.getElementById('answer-input');
     
     let currentUser = null;
-    let conversationHistory = []; // AI 문맥 유지를 위한 대화 기록 배열
+    let conversationHistory = []; // AI 대화 흐름 유지 배열
 
-    // --- [1] Firebase Authentication (인증 상태 감시) ---
+    // --- [1] Firebase Authentication (인증 상태 실시간 감시) ---
     onAuthStateChanged(auth, (user) => {
         if (user) {
             currentUser = user;
             loginSection.classList.add('hidden');
             interviewSection.classList.remove('hidden');
-            userNameSpan.innerText = `🔥 ${user.displayName} 준비생`;
+            // 이메일 주소의 앞부분을 아이디처럼 화면에 표시합니다.
+            const userNickname = user.email.split('@')[0];
+            userNameSpan.innerText = `🔥 ${userNickname} 준비생`;
         } else {
             currentUser = null;
             loginSection.classList.remove('hidden');
@@ -144,26 +166,58 @@
         }
     });
 
-    // 로그인 / 로그아웃 이벤트
-    document.getElementById('btn-login').addEventListener('click', () => signInWithPopup(auth, provider));
+    // --- [2] 회원가입 및 로그인 버튼 이벤트 구현 ---
+    
+    // 회원가입 함수
+    document.getElementById('btn-signup').addEventListener('click', async () => {
+        const email = document.getElementById('auth-email').value.trim();
+        const password = document.getElementById('auth-password').value.trim();
+
+        if (!email || !password) return alert("이메일과 비밀번호를 모두 입력해주세요.");
+        if (password.length < 6) return alert("비밀번호는 최소 6자리 이상이어야 합니다.");
+
+        try {
+            await createUserWithEmailAndPassword(auth, email, password);
+            alert("🎉 회원가입 성공! 자동으로 로그인됩니다.");
+        } catch (error) {
+            console.error("회원가입 에러:", error);
+            alert(`회원가입 실패: ${error.message}`);
+        }
+    });
+
+    // 로그인 함수
+    document.getElementById('btn-login').addEventListener('click', async () => {
+        const email = document.getElementById('auth-email').value.trim();
+        const password = document.getElementById('auth-password').value.trim();
+
+        if (!email || !password) return alert("이메일과 비밀번호를 입력해주세요.");
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+            console.error("로그인 에러:", error);
+            alert("로그인 실패: 이메일 또는 비밀번호를 확인해주세요.");
+        }
+    });
+
+    // 로그아웃 함수
     document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
 
-    // --- [2] TTS (Text-to-Speech) 기능 구현 ---
+
+    // --- [3] TTS (Text-to-Speech) 기능 ---
     function speak(text) {
-        // 브라우저 내장 음성 합성 초기화
-        window.speechSynthesis.cancel(); // 현재 재생중인 소리 끄기
+        window.speechSynthesis.cancel(); 
         const speech = new SpeechSynthesisUtterance(text);
-        speech.lang = 'ko-KR'; // 한국어 설정
-        speech.rate = 1.0;     // 속도
-        speech.pitch = 0.9;    // 신뢰감을 주는 낮은 톤의 면접관 목소리 연출
+        speech.lang = 'ko-KR'; 
+        speech.rate = 1.0;     
+        speech.pitch = 0.9;    // 신뢰감을 주는 무게감 있는 면접관 톤
         window.speechSynthesis.speak(speech);
     }
 
-    // --- [3] 생성형 인공지능 연동 (Gemini API Fetch) ---
+    // --- [4] 생성형 인공지능 연동 (Gemini API) ---
     async function askAI(promptText) {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
         
-        // 프롬프트 배열 구조화
         conversationHistory.push({ role: "user", parts: [{ text: promptText }] });
 
         try {
@@ -175,7 +229,6 @@
             const data = await response.json();
             const aiResponse = data.candidates[0].content.parts[0].text;
             
-            // AI 답변도 히스토리에 기록하여 문맥 유지
             conversationHistory.push({ role: "model", parts: [{ text: aiResponse }] });
             return aiResponse;
         } catch (error) {
@@ -184,16 +237,16 @@
         }
     }
 
-    // 채팅창에 메시지 뿌려주는 함수
+    // 채팅 메시지 추가 함수
     function appendMessage(sender, text) {
         const msgDiv = document.createElement('div');
         msgDiv.classList.add('msg', sender === 'ai' ? 'ai-msg' : 'user-msg');
         msgDiv.innerText = text;
         chatWindow.appendChild(msgDiv);
-        chatWindow.scrollTop = chatWindow.scrollHeight; // 스크롤 하단 고정
+        chatWindow.scrollTop = chatWindow.scrollHeight; 
     }
 
-    // --- [4] 면접 시작 시나리오 ---
+    // --- [5] 면접 시작 시나리오 ---
     document.getElementById('btn-start').addEventListener('click', async () => {
         const job = jobInput.value.trim();
         if (!job) return alert("희망 직무나 학과를 입력해 주세요!");
@@ -203,15 +256,14 @@
 
         appendMessage('ai', `[시스템] ${job} 모의 면접을 시작합니다. 면접관이 질문을 생성 중입니다...`);
 
-        // AI 면접관 페르소나 주입 (System Prompt 역할)
-        const systemPrompt = `너는 아주 깐깐하고 전문적인 면접관이야. 면접 대상자는 현재 '${job}' 포지션에 지원했어. 지원자에게 던질 첫 번째 날카로운 면접 질문을 하나만 한 문장으로 던져줘. 인사말은 생략하고 질문만 해줘.`;
+        const systemPrompt = `너는 아주 깐깐하고 전문적인 면접관이야. 면접 대상자는 현재 '${job}' 포지션에 지원했어. 지원자에게 던질 첫 번째 날카로운 면접 질문을 하나만 한 문장으로 던줘줘. 인사말이나 서론은 다 빼고 오직 질문만 해줘.`;
         
         const firstQuestion = await askAI(systemPrompt);
         appendMessage('ai', firstQuestion);
-        speak(firstQuestion); // 🔊 TTS 실행
+        speak(firstQuestion); // 🔊 TTS
     });
 
-    // --- [5] 답변 제출 및 Firebase DB 연동 ---
+    // --- [6] 답변 제출 및 Firebase DB 연동 ---
     document.getElementById('btn-submit').addEventListener('click', async () => {
         const userAnswer = answerInput.value.trim();
         if (!userAnswer) return;
@@ -219,19 +271,17 @@
         appendMessage('user', userAnswer);
         answerInput.value = '';
 
-        // 로딩 표시
         appendMessage('ai', "면접관이 답변을 분석하고 다음 질문을 생각 중입니다...");
 
-        // AI에게 유저 답변 전달 및 다음 리액션 요청
-        const evaluationPrompt = `지원자의 답변: "${userAnswer}" \n\n위 답변을 듣고 가벼운 피드백을 한 뒤, 꼬리 질문이나 다음 면접 질문을 이어서 하나만 던져줘. 두세 문장 안으로 핵심만 말해줘.`;
+        const evaluationPrompt = `지원자의 답변: "${userAnswer}" \n\n위 답변을 듣고 아주 짧은 피드백(평가)을 한 뒤, 꼬리 질문이나 다음 면접 질문을 이어서 하나만 던져줘. 두세 문장 안으로 핵심만 말해줘.`;
         const nextResponse = await askAI(evaluationPrompt);
 
         // 로딩 문구 제거 후 진짜 답변 출력
         chatWindow.removeChild(chatWindow.lastChild);
         appendMessage('ai', nextResponse);
-        speak(nextResponse); // 🔊 TTS 실행
+        speak(nextResponse); // 🔊 TTS
 
-        // --- [Firebase DB 연동] 대화 로그 백업 저장 ---
+        // --- [Firebase DB 연동] Firestore에 유저별 대화 로그 누적 저장 ---
         if (currentUser) {
             try {
                 await addDoc(collection(db, `users/${currentUser.uid}/interviews`), {
@@ -240,7 +290,7 @@
                     aiResponse: nextResponse,
                     timestamp: serverTimestamp()
                 });
-                console.log("Firestore에 대화 로그 저장 완료!");
+                console.log("Firestore 대화 로그 백업 완료!");
             } catch (e) {
                 console.error("Error adding document: ", e);
             }
