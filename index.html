@@ -1,340 +1,530 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💡 AI 개념 탐험가 & 학습 노트</title>
-    <style>
-        :root {
-            --primary-color: #4a90e2;
-            --background-color: #f5f7fa;
-            --card-color: #ffffff;
-            --text-color: #333333;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .container {
-            width: 90%;
-            max-width: 900px;
-            background: var(--card-color);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        }
-        h1, h2 { text-align: center; color: var(--primary-color); }
-        .auth-box, .app-box { display: none; }
-        .active { display: block; }
-        
-        /* 입력 폼 및 버튼 스타일 */
-        input[type="email"], input[type="password"], input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
-        }
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-        button:hover { background-color: #357abd; }
-        .btn-secondary { background-color: #6c757d; margin-left: 5px; }
-        .btn-secondary:hover { background-color: #5a6268; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 역사 위인 탐험대: 나만의 오디오북</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #efebe9, #d7ccc8);
+      font-family: 'Malgun Gothic', Arial, sans-serif;
+      color: #3e2723;
+    }
+    .container {
+      width: min(1000px, 94%);
+      margin: 40px auto;
+      background: #ffffff;
+      border-radius: 28px;
+      padding: 35px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
+    }
+    h1 {
+      margin: 0 0 8px;
+      text-align: center;
+      font-size: 32px;
+      color: #5d4037;
+    }
+    .subtitle {
+      text-align: center;
+      color: #8d6e63;
+      margin-bottom: 32px;
+      font-size: 15px;
+    }
+    input, select, textarea {
+      border: 2px solid #d7ccc8;
+      border-radius: 14px;
+      font-size: 15px;
+      outline: none;
+      transition: 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #8d6e63;
+      box-shadow: 0 0 0 4px rgba(141, 110, 99, 0.15);
+    }
+    button {
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-weight: bold;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      opacity: 0.95;
+    }
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+      transform: none;
+    }
+    /* 인증 섹션 스타일 */
+    .auth-box {
+      max-width: 400px;
+      margin: 40px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 24px;
+      border: 2px dashed #d7ccc8;
+      border-radius: 20px;
+    }
+    .auth-box input {
+      height: 48px;
+      padding: 0 16px;
+    }
+    .login-btn { background: #8d6e63; color: white; height: 48px; }
+    .signup-btn { background: #a1887f; color: white; height: 48px; }
+    .logout-btn { background: #e0e0e0; color: #333; height: 38px; padding: 0 16px; }
 
-        /* 메인 레이아웃 */
-        .main-content {
-            display: grid;
-            grid-template-columns: 2sfr 1fr;
-            gap: 20px;
-            margin-top: 20px;
-        }
-        @media (max-width: 768px) {
-            .main-content { grid-template-columns: 1fr; }
-        }
-        .search-section, .history-section {
-            background: #f9fbfd;
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #e1e8ed;
-        }
-        .result-area {
-            margin-top: 15px;
-            padding: 15px;
-            background: #fff;
-            border-left: 5px solid var(--primary-color);
-            border-radius: 4px;
-            min-height: 100px;
-            white-space: pre-wrap;
-        }
-        .history-list {
-            list-style: none;
-            padding: 0;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .history-list li {
-            padding: 10px;
-            background: #fff;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            border: 1px solid #eee;
-            cursor: pointer;
-        }
-        .history-list li:hover { background: #edf4fc; }
-        .header-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-    </style>
+    /* 메인 섹션 레이아웃 */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      border-radius: 16px;
+      background: #f5f5f5;
+      margin-bottom: 24px;
+    }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+    @media (max-width: 850px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+    
+    /* 왼쪽: AI 탐험 창 */
+    .explore-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .explore-panel textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 16px;
+      resize: vertical;
+      font-family: inherit;
+    }
+    .ask-btn { background: #5d4037; color: white; height: 48px; width: 100%; font-size: 16px; }
+    
+    .answer-card {
+      padding: 20px;
+      border-radius: 18px;
+      background: #fafafa;
+      border: 1px solid #eeeeee;
+      min-height: 180px;
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+    
+    .tts-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+    .tts-options select, .tts-options input { height: 40px; padding: 0 8px; }
+    .tts-btn { background: #7e57c2; color: white; height: 44px; }
+    .save-db-btn { background: #388e3c; color: white; height: 44px; margin-top: 8px; }
+    
+    /* 오른쪽: 나만의 학습장 리스트 */
+    .notebook-panel {
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #5d4037;
+      margin-bottom: 14px;
+      border-bottom: 2px solid #5d4037;
+      padding-bottom: 6px;
+    }
+    .status { min-height: 20px; font-size: 13px; color: #757575; margin-bottom: 10px; }
+    .list { display: flex; flex-direction: column; gap: 14px; max-height: 600px; overflow-y: auto; padding-right: 4px; }
+    .item {
+      padding: 16px;
+      border-radius: 16px;
+      background: #fdfbe7;
+      border: 1px solid #f0f4c3;
+    }
+    .item-title { margin: 0 0 6px; font-size: 17px; font-weight: bold; color: #3e2723; }
+    .item-content { margin: 0; color: #5d4037; font-size: 14px; line-height: 1.5; }
+    .item-date { margin-top: 8px; font-size: 11px; color: #9e9e9e; }
+    .item-actions { display: flex; gap: 6px; margin-top: 10px; justify-content: flex-end; }
+    
+    .btn-small { height: 32px; padding: 0 12px; font-size: 13px; border-radius: 8px; }
+    .edit-btn { background: #ffa000; color: white; }
+    .delete-btn { background: #d32f2f; color: white; }
+    .save-btn { background: #388e3c; color: white; }
+    .cancel-btn { background: #9e9e9e; color: white; }
+    
+    .edit-box { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .edit-box input { height: 38px; padding: 0 10px; }
+    .edit-box textarea { min-height: 80px; padding: 10px; }
+    
+    .empty { text-align: center; padding: 40px; color: #9e9e9e; background: #fafafa; border-radius: 16px; }
+    .hidden { display: none !important; }
+    audio { width: 100%; margin-top: 10px; }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="auth-box" class="auth-box active">
-        <h1>🔑 AI 탐험가 로그인</h1>
-        <input type="email" id="auth-email" placeholder="이메일 주소 입력">
-        <input type="password" id="auth-password" placeholder="비밀번호 입력">
-        <div style="text-align: center; margin-top: 15px;">
-            <button id="btn-login">로그인</button>
-            <button id="btn-signup" class="btn-secondary">이메일 회원가입</button>
-        </div>
-    </div>
+  <div class="container">
+    <h1>🏛️ AI 역사 위인 탐험대</h1>
+    <div class="subtitle">AI의 맞춤 설명과 생생한 오디오북으로 만드는 나만의 역사 학습장</div>
 
-    <div id="app-box" class="app-box">
-        <div class="header-bar">
-            <span id="user-info" style="font-weight: bold;">사용자님 환영합니다!</span>
-            <button id="btn-logout" class="btn-secondary" style="padding: 8px 15px;">로그아웃</button>
-        </div>
-        
-        <h1>💡 AI 개념 탐험가</h1>
-        
-        <div class="main-content">
-            <div class="search-section">
-                <h3>궁금한 개념을 입력하세요</h3>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="search-input" placeholder="예: 양자역학, 인공지능, 조선의 건국">
-                    <button id="btn-search" style="flex-shrink: 0;">탐험 시작</button>
-                </div>
-                
-                <div style="margin-top: 15px; display: flex; gap: 10px;">
-                    <button id="btn-tts" class="btn-secondary" style="display:none;">🔊 소리로 듣기 (TTS)</button>
-                    <button id="btn-save" style="background-color: #28a745; display:none;">💾 내 노트에 저장</button>
-                </div>
-                
-                <div id="result-text" class="result-area">궁금한 키워드를 입력하고 버튼을 누르면 AI의 명쾌한 설명이 나옵니다.</div>
+    <section id="authSection">
+      <div class="auth-box">
+        <h3 style="margin:0 0 8px; text-align:center;">학습대 로그인</h3>
+        <input id="emailInput" type="email" placeholder="이메일 주소" />
+        <input id="passwordInput" type="password" placeholder="비밀번호 (6자리 이상)" />
+        <button class="login-btn" id="loginBtn">탐험대 로그인</button>
+        <button class="signup-btn" id="signupBtn">새로운 대원 등록(회원가입)</button>
+      </div>
+    </section>
+
+    <section id="mainSection" class="hidden">
+      <div class="top-bar">
+        <div style="font-size: 14px;">탐험 대원: <strong id="userEmail" style="color:#5d4037;"></strong></div>
+        <button class="logout-btn" id="logoutBtn">안전하게 로그아웃</button>
+      </div>
+
+      <div class="main-grid">
+        <div class="explore-panel">
+          <div class="panel-title">📜 AI 위인 탐험 요청</div>
+          <textarea id="questionInput" placeholder="궁금한 역사 속 위인이나 사건을 물어보세요!&#10;예시: '세종대왕이 한글을 창제하신 이유를 초등학생 눈높이에서 알려줘.'"></textarea>
+          <button class="ask-btn" id="askBtn">AI에게 탐험 요청하기</button>
+          
+          <div class="panel-title" style="margin-top: 10px;">✨ AI 탐험가의 답변</div>
+          <div id="answerBox" class="answer-card">아직 탐험을 시작하지 않았습니다. 위에 질문을 입력해 주세요.</div>
+          
+          <div id="ttsSection" class="hidden">
+            <div style="font-weight: bold; font-size:14px; margin-bottom: 6px;">🎧 오디오북 성우 및 속도 설정</div>
+            <div class="tts-options">
+              <select id="modelSelect">
+                <option value="tts-1">빠른 생성 (tts-1)</option>
+                <option value="tts-1-hd">고품질 음성 (tts-1-hd)</option>
+              </select>
+              <select id="voiceSelect">
+                <option value="alloy">alloy (차분함)</option>
+                <option value="echo">echo (기본남성)</option>
+                <option value="nova">nova (생기있음)</option>
+                <option value="shimmer">shimmer (여성형)</option>
+                <option value="onyx">onyx (묵직함)</option>
+              </select>
+              <input id="speedInput" type="number" min="0.25" max="4.0" step="0.05" value="1.0" placeholder="속도(1.0)" />
             </div>
-
-            <div class="history-section">
-                <h3>📚 나의 학습 노트</h3>
-                <ul id="history-list" class="history-list">
-                    </ul>
-            </div>
+            <button class="tts-btn" id="makeAudioBtn" style="width: 100%; margin-top: 8px;">🔊 설명 오디오북으로 듣기</button>
+            <audio id="audioPlayer" controls class="hidden"></audio>
+            
+            <button class="save-db-btn" id="saveDbBtn" style="width: 100%;">📓 이 내용을 내 학습장에 저장하기</button>
+          </div>
         </div>
-    </div>
-</div>
 
-<script type="module">
-    // Firebase v10 라이브러리 로드 (CDN)
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, where, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        <div class="notebook-panel">
+          <div class="panel-title">📓 나의 실시간 역사 학습장</div>
+          <div id="status" class="status">데이터 연결 확인 중...</div>
+          <div id="dataList" class="list"></div>
+        </div>
+      </div>
+    </section>
+  </div>
 
-    // ⚠️ [필수 고치기 1] 본인의 Firebase 프로젝트 설정값을 입력하세요.
-     const firebaseConfig = {
-      apiKey: "AIzaSyCijfeiY87b_xMZjWrLkeQM2-Pb7DoTAdI",
-      authDomain: "hisangegaepaegi.firebaseapp.com",
-      databaseURL: "https://hisangegaepaegi-default-rtdb.firebaseio.com",
-      projectId: "hisangegaepaegi",
-      storageBucket: "hisangegaepaegi.firebasestorage.app",
-      messagingSenderId: "722816404715",
-      appId: "1:722816404715:web:7cc165f19ff4ed2b5302ae",
-      measurementId: "G-6ZMJKKP9T1"
+  <script type="module">
+    // 1. Firebase 라이브러리 모듈 로드 
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+    import { getDatabase, ref, push, set, update, remove, onValue, off } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+    // 2. 제공해주신 기존 Firebase 환경 설정값 유지 
+    const firebaseConfig = {
+      apiKey: 'AIzaSyDO-v52Ehwphh5gW0WBzu9_DliMhOzy4Yo',
+      authDomain: 'kang-f4e85.firebaseapp.com',
+      databaseURL: 'https://kang-f4e85-default-rtdb.firebaseio.com',
+      projectId: 'kang-f4e85',
+      storageBucket: 'kang-f4e85.firebasestorage.app',
+      messagingSenderId: '107057126084',
+      appId: '1:107057126084:web:30f7bcb3f25dd2aa4a0791',
+      measurementId: 'G-DJ52YTYQZM'
     };
 
-    // ⚠️ [필수 고치기 2] 본인의 Google Gemini API Key를 입력하세요.
-    const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY";
+    // Apps Script API 게이트웨이 주소 설정 
+    const CHAT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTS-n6dNxhXGHxck-BL97z9l2PPrqZbl0tqjtPIP44MVFtyOiTwizk4jva8GMuV38p/exec';
+    const TTS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxDNMIktE288seW2Mr5YgksYFeAP3SNl8YyQZFa1DuvD0N_8pjRLDmxkZBYyQ4WGPmt/exec';
 
-    // Firebase 초기화
+    // 앱 초기화 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    const database = getDatabase(app);
 
-    // 전역 상태 변수
+    // DOM 요소 가져오기
+    const authSection = document.getElementById('authSection');
+    const mainSection = document.getElementById('mainSection');
+    const emailInput = document.getElementById('emailInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const loginBtn = document.getElementById('loginBtn');
+    const signupBtn = document.getElementById('signupBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const userEmail = document.getElementById('userEmail');
+    
+    const questionInput = document.getElementById('questionInput');
+    const answerBox = document.getElementById('answerBox');
+    const askBtn = document.getElementById('askBtn');
+    
+    const ttsSection = document.getElementById('ttsSection');
+    const modelSelect = document.getElementById('modelSelect');
+    const voiceSelect = document.getElementById('voiceSelect');
+    const speedInput = document.getElementById('speedInput');
+    const makeAudioBtn = document.getElementById('makeAudioBtn');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const saveDbBtn = document.getElementById('saveDbBtn');
+    
+    const dataList = document.getElementById('dataList');
+    const statusBox = document.getElementById('status');
+
     let currentUser = null;
-    let currentExplanation = "";
+    let currentItemsRef = null;
+    let lastGeneratedTopic = ""; // 데이터베이스 저장용 키워드 보관
 
-    // DOM 요소 선택
-    const authBox = document.getElementById('auth-box');
-    const appBox = document.getElementById('app-box');
-    const emailInput = document.getElementById('auth-email');
-    const passwordInput = document.getElementById('auth-password');
-    const resultText = document.getElementById('result-text');
-    const btnTts = document.getElementById('btn-tts');
-    const btnSave = document.getElementById('btn-save');
-    const historyList = document.getElementById('history-list');
+    function setStatus(message) { statusBox.textContent = message; }
 
-    /* ====================================================================
-       1. Firebase Authentication (이메일/비밀번호 로그인 관리)
-       ==================================================================== */
-    
-    // 회원가입
-    document.getElementById('btn-signup').addEventListener('click', () => {
-        const email = emailInput.value;
-        const password = passwordInput.value;
-        if(!email || !password) return alert('이메일과 비밀번호를 입력해주세요.');
-        
-        createUserWithEmailAndPassword(auth, email, password)
-            .then(() => alert('회원가입 성공! 자동 로그인되었습니다.'))
-            .catch(err => alert('회원가입 실패: ' + err.message));
+    // --- [인증 기능 구현] --- 
+    signupBtn.addEventListener('click', async () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+      if(!email || !password) return alert('이메일과 패스워드를 적어주세요!');
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert('대원 등록이 완료되었습니다!');
+      } catch (error) { alert('회원가입 실패: ' + error.message); }
     });
 
-    // 로그인
-    document.getElementById('btn-login').addEventListener('click', () => {
-        const email = emailInput.value;
-        const password = passwordInput.value;
-        if(!email || !password) return alert('이메일과 비밀번호를 입력해주세요.');
-
-        signInWithEmailAndPassword(auth, email, password)
-            .then(() => alert('로그인 성공!'))
-            .catch(err => alert('로그인 실패: ' + err.message));
+    loginBtn.addEventListener('click', async () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+      if(!email || !password) return alert('로그인 정보를 입력하세요!');
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (error) { alert('로그인 실패: 크레덴셜을 확인하세요.'); }
     });
 
-    // 로그아웃
-    document.getElementById('btn-logout').addEventListener('click', () => {
-        signOut(auth).then(() => alert('로그아웃 되었습니다.'));
-    });
+    logoutBtn.addEventListener('click', () => signOut(auth));
 
-    // 인증 상태 실시간 감지
+    // 상태 변경 모니터링 
     onAuthStateChanged(auth, (user) => {
-        if (user) {
-            currentUser = user;
-            document.getElementById('user-info').innerText = `${user.email} 님`;
-            authBox.classList.remove('active');
-            appBox.classList.add('active');
-            loadHistory(); // 로그인 성공 시 저장 기록 불러오기
-        } else {
-            currentUser = null;
-            authBox.classList.add('active');
-            appBox.classList.remove('active');
-            historyList.innerHTML = '';
-        }
+      if (user) {
+        currentUser = user;
+        authSection.classList.add('hidden');
+        mainSection.classList.remove('hidden');
+        userEmail.textContent = user.email;
+        emailInput.value = ''; passwordInput.value = '';
+        startRealtimeListener(user.uid);
+      } else {
+        currentUser = null;
+        authSection.classList.remove('hidden');
+        mainSection.classList.add('hidden');
+        stopRealtimeListener();
+      }
     });
 
-    /* ====================================================================
-       2. Generative AI 연동 (Google Gemini API)
-       ==================================================================== */
-    document.getElementById('btn-search').addEventListener('click', async () => {
-        const keyword = document.getElementById('search-input').value;
-        if(!keyword) return alert('검색할 개념을 입력하세요.');
-
-        resultText.innerText = "🤖 AI가 개념을 열심히 탐험하여 정리하고 있습니다...";
-        btnTts.style.display = 'none';
-        btnSave.style.display = 'none';
-
-        try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{ text: `'${keyword}'에 대해 중고등학생이 이해하기 쉽게 비유를 들어 친절하게 설명해주고, 마지막에 핵심 요약 3줄을 작성해줘.` }]
-                    }]
-                })
-            });
-
-            const data = await response.json();
-            currentExplanation = data.candidates[0].content.parts[0].text;
-            
-            resultText.innerText = currentExplanation;
-            btnTts.style.display = 'inline-block';
-            btnSave.style.display = 'inline-block';
-        } catch (error) {
-            resultText.innerText = "에러가 발생했습니다. API 키나 네트워크를 확인해주세요.";
-            console.error(error);
-        }
-    });
-
-    /* ====================================================================
-       3. TTS 기능 활용 (Web Speech API)
-       ==================================================================== */
-    btnTts.addEventListener('click', () => {
-        if (!currentExplanation) return;
+    // --- [ChatGPT 생성형 인공지능 API 연동] --- 
+    askBtn.addEventListener('click', async () => {
+      const question = questionInput.value.trim();
+      if (!question) return alert('역사적 위인이나 궁금한 주제를 적어주세요!');
+      
+      try {
+        askBtn.disabled = true;
+        askBtn.textContent = '역사 기록 탐색 중...';
+        answerBox.textContent = 'AI 튜터가 역사 자료를 분석하여 답변을 구상하고 있습니다...';
+        ttsSection.classList.add('hidden');
+        audioPlayer.classList.add('hidden');
         
-        // 마크다운 문자가 있으면 읽기 어색하므로 특수기호 제거
-        const cleanText = currentExplanation.replace(/[*#`_\-]/g, '');
-        
-        // 브라우저가 읽고 있는 소리가 있다면 멈추기
-        window.speechSynthesis.cancel();
-
-        const utterance = new SpeechSynthesisUtterance(cleanText);
-        utterance.lang = 'ko-KR'; // 한국어 설정
-        utterance.rate = 1.0;     // 속도 설정
-        window.speechSynthesis.speak(utterance);
-    });
-
-    /* ====================================================================
-       4. Firebase Firestore 연동 (데이터 저장 및 실시간 연동)
-       ==================================================================== */
-    
-    // 데이터 저장
-    btnSave.addEventListener('click', async () => {
-        const keyword = document.getElementById('search-input').value;
-        if (!currentUser || !currentExplanation || !keyword) return;
-
-        try {
-            await addDoc(collection(db, "study_notes"), {
-                uid: currentUser.uid,
-                keyword: keyword,
-                explanation: currentExplanation,
-                timestamp: new Date()
-            });
-            alert('나의 학습 노트에 성공적으로 저장되었습니다!');
-        } catch (error) {
-            alert('저장 실패: ' + error.message);
-        }
-    });
-
-    // 사용자의 데이터 실시간으로 불러와서 리스트에 표시하기
-    function loadHistory() {
-        if (!currentUser) return;
-
-        const q = query(
-            collection(db, "study_notes"), 
-            where("uid", "==", currentUser.uid)
-        );
-
-        // 실시간 리스너 연동 (onSnapshot)
-        onSnapshot(q, (querySnapshot) => {
-            historyList.innerHTML = '';
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                const li = document.createElement('li');
-                li.innerText = `📘 ${data.keyword}`;
-                // 리스트 아이템 클릭 시 과거 저장된 내용 보여주기 및 TTS 세팅
-                li.addEventListener('click', () => {
-                    document.getElementById('search-input').value = data.keyword;
-                    resultText.innerText = data.explanation;
-                    currentExplanation = data.explanation;
-                    btnTts.style.display = 'inline-block';
-                    btnSave.style.display = 'inline-block';
-                });
-                historyList.appendChild(li);
-            });
+        const response = await fetch(CHAT_SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ question: question })
         });
+        const data = await response.json();
+        
+        if (data.error) throw new Error(data.error);
+        
+        answerBox.textContent = data.answer || '답변을 구성하지 못했습니다.';
+        lastGeneratedTopic = question; // 저장 제목용으로 보관
+        ttsSection.classList.remove('hidden'); // 답변 생성 성공시 음성 옵션 공개
+      } catch (error) {
+        answerBox.textContent = '오류 발생: ' + error.message;
+      } finally {
+        askBtn.disabled = false;
+        askBtn.textContent = 'AI에게 탐험 요청하기';
+      }
+    });
+
+    // --- [OpenAI TTS API 연동 및 오디오 제어] --- 
+    makeAudioBtn.addEventListener('click', async () => {
+      const text = answerBox.textContent;
+      if (!text || text.startsWith('AI 튜터가') || text.startsWith('아직')) return;
+
+      try {
+        makeAudioBtn.disabled = true;
+        makeAudioBtn.textContent = '목소리 변환 중...';
+        setStatus('서버에서 오디오 북을 제작하는 중입니다.');
+
+        const response = await fetch(TTS_SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            type: 'tts',
+            text: text,
+            model: modelSelect.value,
+            voice: voiceSelect.value,
+            speed: Number(speedInput.value || 1.0)
+          })
+        });
+        const data = await response.json();
+        
+        if (data.error) throw new Error(data.error);
+        
+        // Base64 데이터를 오디오 오브젝트 URL로 변경 
+        const audioUrl = base64ToAudioUrl(data.audioBase64, 'audio/mpeg');
+        audioPlayer.src = audioUrl;
+        audioPlayer.classList.remove('hidden');
+        audioPlayer.play();
+        setStatus('오디오 북이 완성되었습니다!');
+      } catch (error) {
+        alert('TTS 생성 중 오류가 발생했습니다: ' + error.message);
+      } finally {
+        makeAudioBtn.disabled = false;
+        makeAudioBtn.textContent = '🔊 설명 오디오북으로 듣기';
+      }
+    });
+
+    // Base64를 blob 주소로 바꾸는 보조 함수 
+    function base64ToAudioUrl(base64, mimeType) {
+      const byteCharacters = atob(base64);
+      const byteArrays = [];
+      for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+        const slice = byteCharacters.slice(offset, offset + 512);
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+        byteArrays.push(new Uint8Array(byteNumbers));
+      }
+      return URL.createObjectURL(new Blob(byteArrays, { type: mimeType }));
     }
-</script>
+
+    // --- [Firebase Realtime DB 연동 (CRUD)] --- 
+    saveDbBtn.addEventListener('click', async () => {
+      if(!currentUser) return;
+      const content = answerBox.textContent;
+      if(!content) return;
+
+      try {
+        const itemsRef = ref(database, `users/${currentUser.uid}/items`);
+        const newItemRef = push(itemsRef);
+        await set(newItemRef, {
+          title: lastGeneratedTopic,
+          content: content,
+          createdAt: new Date().toLocaleString('ko-KR'),
+          updatedAt: ''
+        });
+        alert('나의 실시간 역사 학습장에 저장되었습니다!');
+      } catch (error) {
+        alert('저장 오류: ' + error.message);
+      }
+    });
+
+    function startRealtimeListener(uid) {
+      setStatus('학습장 데이터를 불러오는 중...');
+      currentItemsRef = ref(database, `users/${uid}/items`);
+      onValue(currentItemsRef, (snapshot) => {
+        renderData(snapshot.val());
+        setStatus('실시간 학습 기록 동기화 완료');
+      }, (err) => {
+        setStatus('동기화 실패. 데이터베이스 규칙을 확인하세요.');
+      });
+    }
+
+    function stopRealtimeListener() {
+      if (currentItemsRef) { off(currentItemsRef); currentItemsRef = null; }
+      dataList.innerHTML = '';
+    }
+
+    function renderData(data) {
+      dataList.innerHTML = '';
+      if (!data) {
+        dataList.innerHTML = '<div class="empty">아직 학습장에 기록된 데이터가 없습니다. 탐험 후 저장해보세요!</div>';
+        return;
+      }
+      Object.entries(data).reverse().forEach(([id, item]) => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.id = `item-${id}`;
+        div.innerHTML = `
+          <div>
+            <p class="item-title">${escapeHTML(item.title || '역사 기록')}</p>
+            <p class="item-content">${escapeHTML(item.content || '')}</p>
+            <div class="item-date">기록시간: ${item.createdAt} ${item.updatedAt ? ` / 수정됨: ${item.updatedAt}` : ''}</div>
+          </div>
+          <div class="item-actions">
+            <button class="btn-small edit-btn" onclick="showEditForm('${id}', '${escapeAttr(item.title)}', '${escapeAttr(item.content)}')">수정</button>
+            <button class="btn-small delete-btn" onclick="deleteData('${id}')">삭제</button>
+          </div>
+        `;
+        dataList.appendChild(div);
+      });
+    }
+
+    // --- 글로벌 스코프 바인딩 (컴포넌트 이벤트용) --- 
+    window.deleteData = async function(id) {
+      if (!currentUser || !confirm('이 학습 기록을 지우시겠습니까?')) return;
+      try {
+        await remove(ref(database, `users/${currentUser.uid}/items/${id}`));
+      } catch (e) { alert('삭제 실패'); }
+    };
+
+    window.showEditForm = function(id, title, content) {
+      const card = document.getElementById(`item-${id}`);
+      card.innerHTML = `
+        <div class="edit-box">
+          <input id="edit-title-${id}" type="text" value="${title}" />
+          <textarea id="edit-content-${id}">${content}</textarea>
+          <div class="item-actions">
+            <button class="btn-small save-btn" onclick="updateData('${id}')">완료</button>
+            <button class="btn-small cancel-btn" onclick="startRealtimeListener(currentUser.uid)">취소</button>
+          </div>
+        </div>
+      `;
+    };
+
+    window.updateData = async function(id) {
+      if(!currentUser) return;
+      const editTitle = document.getElementById(`edit-title-${id}`).value.trim();
+      const editContent = document.getElementById(`edit-content-${id}`).value.trim();
+      if(!editTitle || !editContent) return alert('내용을 채워주세요!');
+
+      try {
+        await update(ref(database, `users/${currentUser.uid}/items/${id}`), {
+          title: editTitle,
+          content: editContent,
+          updatedAt: new Date().toLocaleString('ko-KR')
+        });
+      } catch (e) { alert('수정 실패'); }
+    };
+
+    function escapeHTML(str) {
+      return String(str).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+    }
+    function escapeAttr(str) {
+      return escapeHTML(str).replaceAll('`', '&#096;');
+    }
+  </script>
 </body>
 </html>
