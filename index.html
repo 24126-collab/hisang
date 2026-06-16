@@ -245,7 +245,7 @@
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
     import { getDatabase, ref, push, set, update, remove, onValue, off } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 
-    // 2. 제공해주신 기존 Firebase 환경 설정값 유지 
+    // 2. 기존 Firebase 환경 설정값 유지 
     const firebaseConfig = {
       apiKey: "AIzaSyCijfeiY87b_xMZjWrLkeQM2-Pb7DoTAdI",
       authDomain: "hisangegaepaegi.firebaseapp.com",
@@ -405,7 +405,7 @@
       }
     });
 
-    // Base64를 blob 주소로 바꾸는 보조 함수 
+    // Base64를 blob 주소로 바꾸는 보조 함수 (오타 수정 완료)
     function base64ToAudioUrl(base64, mimeType) {
       const byteCharacters = atob(base64);
       const byteArrays = [];
@@ -415,7 +415,7 @@
         for (let i = 0; i < slice.length; i++) {
           byteNumbers[i] = slice.charCodeAt(i);
         }
-        boxArray = byteArrays.push(new Uint8Array(byteNumbers));
+        byteArrays.push(new Uint8Array(byteNumbers));
       }
       return URL.createObjectURL(new Blob(byteArrays, { type: mimeType }));
     }
